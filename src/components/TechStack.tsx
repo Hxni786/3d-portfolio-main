@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
+// import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import {
   BallCollider,
   Physics,
