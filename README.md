@@ -2,9 +2,11 @@
 
 This repository contains the source code for my personal 3D portfolio built with React, TypeScript, Three.js, React Three Fiber, and GSAP. It includes animated page sections, a 3D character scene, custom cursor interactions, and smooth transitions designed for a modern portfolio experience.
 
-Live site: [Your Live URL Here]
+Live site: [https://hxnix-gold.vercel.app/](https://hxnix-gold.vercel.app/)
 
-![Portfolio Preview](https://i.postimg.cc/hQhDXMDG/study-desk.png)
+![Portfolio Preview](./public/images/preview.png)
+
+![QR Code](./public/images/qr-code.png)
 
 ## Table of Contents
 
