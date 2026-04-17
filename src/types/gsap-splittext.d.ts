@@ -7,7 +7,7 @@ declare module "gsap/SplitText" {
   }
 
   export class SplitText {
-    constructor(target: string | Element | ArrayLike<string | Element>, vars?: SplitTextVars);
+    constructor(target: string | Element | ArrayLike<string | Element> | string[], vars?: SplitTextVars);
 
     chars: Element[];
     words: Element[];
