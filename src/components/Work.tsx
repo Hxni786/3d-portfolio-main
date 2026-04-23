@@ -1,129 +1,235 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import "./styles/Work.css";
-import WorkImage from "./WorkImage";
-import { MdArrowBack, MdArrowForward } from "react-icons/md";
+import { MdArrowOutward } from "react-icons/md";
 
 const projects = [
   {
-    title: "Study Desk",
-    category: "3D Interactive Study Dashboard",
-    tools: "FocusFlow, HTML5, CSS3, JavaScript",
-    image: "https://i.postimg.cc/hQhDXMDG/study-desk.png",
-    link: "https://hxni786.github.io/Study-Helper/",
+    title: "The 3D Nexus",
+    category: "Immersive Three.js Portfolio Experience",
+    tools: "React, Three.js, R3F, GSAP, TypeScript",
+    image:
+      "https://raw.githubusercontent.com/Hxni786/3d-portfolio-main/main/public/images/preview.png",
+    link: "https://hxnix-gold.vercel.app/",
+    accent: "#5eead4",
   },
   {
-    title: "A Birthday Gift",
-    category: "Interactive 3D Gift Design",
-    tools: "GSAP, Three.js, Spline, CSS3 Animations",
-    image: "https://i.postimg.cc/Kk6qT8F4/birthday-gift.png",
-    link: "https://happybirthdayby-hxnisyed.netlify.app/",
+    title: "Editorial Excellence",
+    category: "Full-Stack Boutique E-commerce Platform",
+    tools: "React, Node.js, Express, MySQL, Tailwind",
+    image:
+      "https://raw.githubusercontent.com/Hxni786/Hxni-Ecommerce-Store/main/screenshot_home.png",
+    link: "https://github.com/Hxni786/Hxni-Ecommerce-Store",
+    accent: "#a78bfa",
+  },
+  {
+    title: "Bespoke E-store 2.0",
+    category: "Luxury Minimalist Mobile Commerce",
+    tools: "React Native, Expo, Node.js, REST API",
+    image:
+      "https://raw.githubusercontent.com/Hxni786/E-store2/main/docs/ui-preview.png",
+    link: "https://github.com/Hxni786/E-store2",
+    accent: "#f472b6",
+  },
+  {
+    title: "TicketVerse",
+    category: "Premium Full-Stack Event Booking",
+    tools: "React Native, Node.js, Express, MySQL",
+    image:
+      "https://raw.githubusercontent.com/Hxni786/Ticket-Booking-App/main/mobile/assets/promo1.png",
+    link: "https://github.com/Hxni786/Ticket-Booking-App",
+    accent: "#fbbf24",
+  },
+  {
+    title: "NIXH Social",
+    category: "Enterprise Multi-User Directory & Social Engine",
+    tools: "React Native, Firebase, Node.js, REST API",
+    image:
+      "https://raw.githubusercontent.com/Hxni786/Nixh-A-social-Media-App/main/docs/assets/mobile_mockup.png",
+    link: "https://github.com/Hxni786/Nixh-A-social-Media-App",
+    accent: "#34d399",
+  },
+  {
+    title: "hxni Express",
+    category: "Cinematic Parallax Food Delivery Experience",
+    tools: "React Native, Expo, GSAP, Parallax Scroll",
+    image:
+      "https://raw.githubusercontent.com/Hxni786/Hxni-Ecommerce-Store/main/profile_docs/assets/hxni_express_mockup.png",
+    link: "https://github.com/Hxni786/A-food-Delivery-App-hxni-express",
+    accent: "#fb923c",
+  },
+  {
+    title: "Spice with Hassan",
+    category: "Boutique Restaurant & Ordering Management",
+    tools: "React Native, Node.js, Express, MySQL",
+    image:
+      "https://raw.githubusercontent.com/Hxni786/Hxni-Ecommerce-Store/main/profile_docs/assets/spice_hassan_mockup.png",
+    link: "https://github.com/Hxni786/-A-Restaurant-App-Spice-with-Hassan",
+    accent: "#ef4444",
+  },
+  {
+    title: "Nixh Food 2.0",
+    category: "Scalable Order Tracking & Delivery Ecosystem",
+    tools: "React Native, Node.js, Express, REST API",
+    image:
+      "https://raw.githubusercontent.com/Hxni786/Food-Delivery-app-2/main/hero.png",
+    link: "https://github.com/Hxni786/Food-Delivery-app-2",
+    accent: "#38bdf8",
+  },
+  {
+    title: "Hxni Finance",
+    category: "Advanced Personal Asset & Expense Management",
+    tools: "React Native, Node.js, MySQL, Chart.js",
+    image:
+      "https://raw.githubusercontent.com/Hxni786/Hxni-Ecommerce-Store/main/profile_docs/assets/hxni_finance_mockup.png",
+    link: "https://github.com/Hxni786/Expense-Tracker",
+    accent: "#a3e635",
+  },
+  {
+    title: "Hxnix Social",
+    category: "Modern Interactive Community Engine",
+    tools: "React Native, Firebase, Node.js, Express",
+    image:
+      "https://raw.githubusercontent.com/Hxni786/Hxni-Ecommerce-Store/main/profile_docs/assets/hxnix_social_mockup.png",
+    link: "https://github.com/Hxni786/Hxnix-Social-Media-App",
+    accent: "#c084fc",
   },
 ];
 
 const Work = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [activeCard, setActiveCard] = useState<number | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
-  const goToSlide = useCallback(
-    (index: number) => {
-      if (isAnimating) return;
-      setIsAnimating(true);
-      setCurrentIndex(index);
-      setTimeout(() => setIsAnimating(false), 500);
+  // Intersection observer for staggered reveal
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const index = Number(entry.target.getAttribute("data-index"));
+          if (entry.isIntersecting) {
+            setVisibleCards((prev) => new Set([...prev, index]));
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
+    );
+
+    cardRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent, index: number) => {
+      const card = cardRefs.current[index];
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      setMousePos({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
     },
-    [isAnimating]
+    []
   );
 
-  const goToPrev = useCallback(() => {
-    const newIndex =
-      currentIndex === 0 ? projects.length - 1 : currentIndex - 1;
-    goToSlide(newIndex);
-  }, [currentIndex, goToSlide]);
-
-  const goToNext = useCallback(() => {
-    const newIndex =
-      currentIndex === projects.length - 1 ? 0 : currentIndex + 1;
-    goToSlide(newIndex);
-  }, [currentIndex, goToSlide]);
-
   return (
-    <div className="work-section" id="work">
+    <div className="work-section" id="work" ref={sectionRef}>
       <div className="work-container section-container">
-        <h2>
-          My <span>Work</span>
-        </h2>
+        {/* Section Header */}
+        <div className="work-header">
+          <div className="work-header-line" />
+          <h2>
+            Featured <span>Gallery</span>
+          </h2>
+          <p className="work-subtitle">
+            A curated collection of full-stack applications, mobile experiences,
+            and immersive 3D creations.
+          </p>
+        </div>
 
-        <div className="carousel-wrapper">
-          {/* Navigation Arrows */}
-          <button
-            className="carousel-arrow carousel-arrow-left"
-            onClick={goToPrev}
-            aria-label="Previous project"
-            data-cursor="disable"
-          >
-            <MdArrowBack />
-          </button>
-          <button
-            className="carousel-arrow carousel-arrow-right"
-            onClick={goToNext}
-            aria-label="Next project"
-            data-cursor="disable"
-          >
-            <MdArrowForward />
-          </button>
+        {/* Project Counter */}
+        <div className="work-counter">
+          <span className="work-counter-num">{projects.length}</span>
+          <span className="work-counter-label">Projects</span>
+        </div>
 
-          {/* Slides */}
-          <div className="carousel-track-container">
+        {/* Gallery Grid */}
+        <div className="gallery-grid">
+          {projects.map((project, index) => (
             <div
-              className="carousel-track"
-              style={{
-                transform: `translateX(-${currentIndex * 100}%)`,
+              key={index}
+              className={`gallery-card ${
+                visibleCards.has(index) ? "gallery-card--visible" : ""
+              } ${activeCard === index ? "gallery-card--active" : ""}`}
+              data-index={index}
+              ref={(el) => {
+                cardRefs.current[index] = el;
               }}
+              onMouseEnter={() => setActiveCard(index)}
+              onMouseLeave={() => setActiveCard(null)}
+              onMouseMove={(e) => handleMouseMove(e, index)}
+              style={
+                {
+                  "--card-accent": project.accent,
+                  "--delay": `${index * 0.08}s`,
+                  "--mouse-x": `${mousePos.x}px`,
+                  "--mouse-y": `${mousePos.y}px`,
+                } as React.CSSProperties
+              }
             >
-              {projects.map((project, index) => (
-                <div className="carousel-slide" key={index}>
-                  <div className="carousel-content">
-                    <div className="carousel-info">
-                      <div className="carousel-number">
-                        <h3>0{index + 1}</h3>
-                      </div>
-                      <div className="carousel-details">
-                        <h4>{project.title}</h4>
-                        <p className="carousel-category">
-                          {project.category}
-                        </p>
-                        <div className="carousel-tools">
-                          <span className="tools-label">Tools & Features</span>
-                          <p>{project.tools}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="carousel-image-wrapper">
-                      <WorkImage
-                        image={project.image}
-                        alt={project.title}
-                        link={project.link}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+              {/* Glow effect on hover */}
+              <div className="gallery-card-glow" />
 
-          {/* Dot Indicators */}
-          <div className="carousel-dots">
-            {projects.map((_, index) => (
-              <button
-                key={index}
-                className={`carousel-dot ${index === currentIndex ? "carousel-dot-active" : ""
-                  }`}
-                onClick={() => goToSlide(index)}
-                aria-label={`Go to project ${index + 1}`}
-                data-cursor="disable"
-              />
-            ))}
-          </div>
+              {/* Project Number */}
+              <div className="gallery-card-number">
+                {String(index + 1).padStart(2, "0")}
+              </div>
+
+              {/* Image */}
+              <div className="gallery-card-image">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  loading="lazy"
+                />
+                <div className="gallery-card-image-overlay" />
+              </div>
+
+              {/* Content */}
+              <div className="gallery-card-content">
+                <h3 className="gallery-card-title">{project.title}</h3>
+                <p className="gallery-card-category">{project.category}</p>
+
+                {/* Tech pills */}
+                <div className="gallery-card-tools">
+                  {project.tools.split(", ").map((tool, i) => (
+                    <span key={i} className="gallery-tool-pill">
+                      {tool}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Link */}
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="gallery-card-link"
+                  data-cursor="disable"
+                >
+                  <span>View Project</span>
+                  <MdArrowOutward />
+                </a>
+              </div>
+
+              {/* Border accent line */}
+              <div className="gallery-card-accent-line" />
+            </div>
+          ))}
         </div>
       </div>
     </div>
